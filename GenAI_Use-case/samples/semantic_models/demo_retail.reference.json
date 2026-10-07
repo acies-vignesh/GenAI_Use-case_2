@@ -1,0 +1,1054 @@
+{
+  "model_version": "1.0",
+  "source_id": "demo_retail",
+  "version": 1,
+  "status": "reviewed",
+  "based_on_metadata": "2026-10-06T00:00:00Z",
+  "created_at": "2026-10-06T00:00:00Z",
+  "domain": {
+    "name": "Retail sales (India)",
+    "description": "Omni-channel retailer selling electronics, home, fashion and grocery across four Indian zones via web, mobile app and stores; amounts in INR."
+  },
+  "entities": [
+    {
+      "entity_id": "region",
+      "name": "Region",
+      "table": "regions",
+      "entity_type": "hierarchy",
+      "grain": "One row per geographic node (zone, state or city)",
+      "description": "Sales geography tree: Zone > State > City.",
+      "primary_key": [
+        "region_id"
+      ],
+      "business_key": [
+        "region_code"
+      ],
+      "attributes": [
+        {
+          "column": "region_id",
+          "name": "Region ID",
+          "semantic_type": "identifier",
+          "role": "key",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "region_code",
+          "name": "Region code",
+          "semantic_type": "business_key",
+          "role": "key",
+          "pii": false,
+          "description": "Zone: 2 letters (NZ); State: ISO 3166-2 (IN-KA); City: 3-letter code (BLR)",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "region_name",
+          "name": "Region name",
+          "semantic_type": "label",
+          "role": "attribute",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "region_level",
+          "name": "Region level",
+          "semantic_type": "hierarchy_level",
+          "role": "dimension",
+          "pii": false,
+          "allowed_values": {
+            "values": [
+              "ZONE",
+              "STATE",
+              "CITY"
+            ],
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "parent_region_id",
+          "name": "Parent region",
+          "semantic_type": "parent_key",
+          "role": "foreign_key",
+          "pii": false,
+          "description": "Empty only for zones (top level)",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        }
+      ],
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "entity_id": "category",
+      "name": "Product category",
+      "table": "categories",
+      "entity_type": "hierarchy",
+      "grain": "One row per product-hierarchy node",
+      "description": "Merchandise tree: Department > Category > Subcategory.",
+      "primary_key": [
+        "category_id"
+      ],
+      "business_key": [
+        "category_code"
+      ],
+      "attributes": [
+        {
+          "column": "category_id",
+          "name": "Category ID",
+          "semantic_type": "identifier",
+          "role": "key",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "category_code",
+          "name": "Category code",
+          "semantic_type": "business_key",
+          "role": "key",
+          "pii": false,
+          "description": "Dash-separated path, e.g. ELEC-MOB-SMT",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "category_name",
+          "name": "Category name",
+          "semantic_type": "label",
+          "role": "attribute",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "category_level",
+          "name": "Category level",
+          "semantic_type": "hierarchy_level",
+          "role": "dimension",
+          "pii": false,
+          "allowed_values": {
+            "values": [
+              "DEPARTMENT",
+              "CATEGORY",
+              "SUBCATEGORY"
+            ],
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "parent_category_id",
+          "name": "Parent category",
+          "semantic_type": "parent_key",
+          "role": "foreign_key",
+          "pii": false,
+          "description": "Empty only for departments (top level)",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        }
+      ],
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "entity_id": "product",
+      "name": "Product",
+      "table": "products",
+      "entity_type": "master",
+      "grain": "One row per sellable product (SKU)",
+      "primary_key": [
+        "product_id"
+      ],
+      "business_key": [
+        "sku"
+      ],
+      "attributes": [
+        {
+          "column": "product_id",
+          "name": "Product ID",
+          "semantic_type": "identifier",
+          "role": "key",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "sku",
+          "name": "SKU",
+          "semantic_type": "business_key",
+          "role": "key",
+          "pii": false,
+          "expected_pattern": "^SKU-\\d{6}$",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "product_name",
+          "name": "Product name",
+          "semantic_type": "label",
+          "role": "attribute",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "category_id",
+          "name": "Category",
+          "semantic_type": "foreign_key",
+          "role": "foreign_key",
+          "pii": false,
+          "description": "Must be a SUBCATEGORY",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "brand",
+          "name": "Brand",
+          "semantic_type": "label",
+          "role": "dimension",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "unit_price",
+          "name": "Selling price",
+          "semantic_type": "price",
+          "role": "measure",
+          "pii": false,
+          "unit": "INR",
+          "valid_range": {
+            "min": 0.01,
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "cost_price",
+          "name": "Cost price",
+          "semantic_type": "cost",
+          "role": "measure",
+          "pii": false,
+          "description": "Must not exceed selling price",
+          "unit": "INR",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "status",
+          "name": "Product status",
+          "semantic_type": "status_code",
+          "role": "dimension",
+          "pii": false,
+          "allowed_values": {
+            "values": [
+              "ACTIVE",
+              "DISCONTINUED"
+            ],
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "launch_date",
+          "name": "Launch date",
+          "semantic_type": "event_date",
+          "role": "attribute",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        }
+      ],
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "entity_id": "customer",
+      "name": "Customer",
+      "table": "customers",
+      "entity_type": "master",
+      "grain": "One row per registered customer",
+      "primary_key": [
+        "customer_id"
+      ],
+      "business_key": [
+        "customer_code"
+      ],
+      "attributes": [
+        {
+          "column": "customer_id",
+          "name": "Customer ID",
+          "semantic_type": "identifier",
+          "role": "key",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "customer_code",
+          "name": "Customer code",
+          "semantic_type": "business_key",
+          "role": "key",
+          "pii": false,
+          "expected_pattern": "^CUST-\\d{6}$",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "first_name",
+          "name": "First name",
+          "semantic_type": "person_name",
+          "role": "attribute",
+          "pii": true,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "last_name",
+          "name": "Last name",
+          "semantic_type": "person_name",
+          "role": "attribute",
+          "pii": true,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "email",
+          "name": "Email address",
+          "semantic_type": "email",
+          "role": "attribute",
+          "pii": true,
+          "description": "Unique per customer",
+          "expected_pattern": "^[^@\\s]+@[^@\\s]+\\.[A-Za-z]{2,}$",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "phone",
+          "name": "Mobile number",
+          "semantic_type": "phone",
+          "role": "attribute",
+          "pii": true,
+          "description": "Indian mobile in E.164 form",
+          "expected_pattern": "^\\+91[6-9]\\d{9}$",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "gender",
+          "name": "Gender",
+          "semantic_type": "category_code",
+          "role": "dimension",
+          "pii": true,
+          "allowed_values": {
+            "values": [
+              "M",
+              "F",
+              "O"
+            ],
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "date_of_birth",
+          "name": "Date of birth",
+          "semantic_type": "birth_date",
+          "role": "attribute",
+          "pii": true,
+          "description": "Customer must be 18+ at signup",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "region_id",
+          "name": "Home city",
+          "semantic_type": "foreign_key",
+          "role": "foreign_key",
+          "pii": false,
+          "description": "Must be a CITY",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "segment",
+          "name": "Customer segment",
+          "semantic_type": "category_code",
+          "role": "dimension",
+          "pii": false,
+          "allowed_values": {
+            "values": [
+              "CONSUMER",
+              "CORPORATE",
+              "SMALL_BUSINESS"
+            ],
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "signup_date",
+          "name": "Signup date",
+          "semantic_type": "event_date",
+          "role": "attribute",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "is_active",
+          "name": "Active flag",
+          "semantic_type": "flag",
+          "role": "dimension",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        }
+      ],
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "entity_id": "order",
+      "name": "Order",
+      "table": "orders",
+      "entity_type": "transaction",
+      "grain": "One row per customer order (header)",
+      "description": "Lifecycle: PLACED > SHIPPED > DELIVERED, or CANCELLED / RETURNED.",
+      "primary_key": [
+        "order_id"
+      ],
+      "business_key": [
+        "order_number"
+      ],
+      "attributes": [
+        {
+          "column": "order_id",
+          "name": "Order ID",
+          "semantic_type": "identifier",
+          "role": "key",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "order_number",
+          "name": "Order number",
+          "semantic_type": "business_key",
+          "role": "key",
+          "pii": false,
+          "expected_pattern": "^ORD-\\d{8}-\\d{6}$",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "customer_id",
+          "name": "Customer",
+          "semantic_type": "foreign_key",
+          "role": "foreign_key",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "order_date",
+          "name": "Order date",
+          "semantic_type": "event_date",
+          "role": "dimension",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "ship_date",
+          "name": "Ship date",
+          "semantic_type": "event_date",
+          "role": "attribute",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "delivery_date",
+          "name": "Delivery date",
+          "semantic_type": "event_date",
+          "role": "attribute",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "status",
+          "name": "Order status",
+          "semantic_type": "status_code",
+          "role": "dimension",
+          "pii": false,
+          "allowed_values": {
+            "values": [
+              "PLACED",
+              "SHIPPED",
+              "DELIVERED",
+              "CANCELLED",
+              "RETURNED"
+            ],
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "channel",
+          "name": "Sales channel",
+          "semantic_type": "category_code",
+          "role": "dimension",
+          "pii": false,
+          "allowed_values": {
+            "values": [
+              "ONLINE",
+              "MOBILE_APP",
+              "STORE"
+            ],
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "payment_method",
+          "name": "Payment method",
+          "semantic_type": "category_code",
+          "role": "dimension",
+          "pii": false,
+          "description": "COD only for ONLINE/MOBILE_APP; CASH only in STORE",
+          "allowed_values": {
+            "values": [
+              "CARD",
+              "UPI",
+              "COD",
+              "NET_BANKING",
+              "WALLET",
+              "CASH"
+            ],
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "currency",
+          "name": "Currency",
+          "semantic_type": "currency_code",
+          "role": "dimension",
+          "pii": false,
+          "allowed_values": {
+            "values": [
+              "INR"
+            ],
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "discount_amount",
+          "name": "Order discount",
+          "semantic_type": "amount",
+          "role": "measure",
+          "pii": false,
+          "unit": "INR",
+          "valid_range": {
+            "min": 0,
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "total_amount",
+          "name": "Order total",
+          "semantic_type": "amount",
+          "role": "measure",
+          "pii": false,
+          "description": "= sum of line amounts - order discount",
+          "unit": "INR",
+          "valid_range": {
+            "min": 0,
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        }
+      ],
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "entity_id": "order_item",
+      "name": "Order line",
+      "table": "order_items",
+      "entity_type": "transaction_line",
+      "grain": "One row per product on an order",
+      "primary_key": [
+        "order_item_id"
+      ],
+      "attributes": [
+        {
+          "column": "order_item_id",
+          "name": "Order line ID",
+          "semantic_type": "identifier",
+          "role": "key",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "order_id",
+          "name": "Order",
+          "semantic_type": "foreign_key",
+          "role": "foreign_key",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "product_id",
+          "name": "Product",
+          "semantic_type": "foreign_key",
+          "role": "foreign_key",
+          "pii": false,
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "quantity",
+          "name": "Quantity",
+          "semantic_type": "quantity",
+          "role": "measure",
+          "pii": false,
+          "unit": "units",
+          "valid_range": {
+            "min": 1,
+            "max": 100,
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "unit_price",
+          "name": "Unit price",
+          "semantic_type": "price",
+          "role": "measure",
+          "pii": false,
+          "unit": "INR",
+          "valid_range": {
+            "min": 0.01,
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "discount_pct",
+          "name": "Line discount",
+          "semantic_type": "percentage",
+          "role": "measure",
+          "pii": false,
+          "unit": "%",
+          "valid_range": {
+            "min": 0,
+            "max": 100,
+            "source": "steward"
+          },
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        },
+        {
+          "column": "line_amount",
+          "name": "Line amount",
+          "semantic_type": "amount",
+          "role": "measure",
+          "pii": false,
+          "description": "= quantity * unit_price * (1 - discount_pct/100), rounded to 2 decimals",
+          "unit": "INR",
+          "provenance": {
+            "source": "steward",
+            "confidence": 1.0,
+            "locked": true
+          }
+        }
+      ],
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "relationship_id": "order_customer",
+      "from_entity": "order",
+      "from_attributes": [
+        "customer_id"
+      ],
+      "to_entity": "customer",
+      "to_attributes": [
+        "customer_id"
+      ],
+      "cardinality": "many_to_one",
+      "mandatory": true,
+      "kind": "declared",
+      "description": "Each order is placed by exactly one customer",
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "relationship_id": "order_item_order",
+      "from_entity": "order_item",
+      "from_attributes": [
+        "order_id"
+      ],
+      "to_entity": "order",
+      "to_attributes": [
+        "order_id"
+      ],
+      "cardinality": "many_to_one",
+      "mandatory": true,
+      "kind": "declared",
+      "description": "Each order line belongs to exactly one order",
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "relationship_id": "order_item_product",
+      "from_entity": "order_item",
+      "from_attributes": [
+        "product_id"
+      ],
+      "to_entity": "product",
+      "to_attributes": [
+        "product_id"
+      ],
+      "cardinality": "many_to_one",
+      "mandatory": true,
+      "kind": "declared",
+      "description": "Each order line sells exactly one product",
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "relationship_id": "product_category",
+      "from_entity": "product",
+      "from_attributes": [
+        "category_id"
+      ],
+      "to_entity": "category",
+      "to_attributes": [
+        "category_id"
+      ],
+      "cardinality": "many_to_one",
+      "mandatory": true,
+      "kind": "declared",
+      "description": "Each product is classified under one subcategory",
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "relationship_id": "customer_region",
+      "from_entity": "customer",
+      "from_attributes": [
+        "region_id"
+      ],
+      "to_entity": "region",
+      "to_attributes": [
+        "region_id"
+      ],
+      "cardinality": "many_to_one",
+      "mandatory": true,
+      "kind": "declared",
+      "description": "Each customer lives in one city",
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "relationship_id": "region_parent",
+      "from_entity": "region",
+      "from_attributes": [
+        "parent_region_id"
+      ],
+      "to_entity": "region",
+      "to_attributes": [
+        "region_id"
+      ],
+      "cardinality": "many_to_one",
+      "mandatory": false,
+      "kind": "declared",
+      "description": "A region's parent region (none for zones)",
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "relationship_id": "category_parent",
+      "from_entity": "category",
+      "from_attributes": [
+        "parent_category_id"
+      ],
+      "to_entity": "category",
+      "to_attributes": [
+        "category_id"
+      ],
+      "cardinality": "many_to_one",
+      "mandatory": false,
+      "kind": "declared",
+      "description": "A category's parent node (none for departments)",
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    }
+  ],
+  "hierarchies": [
+    {
+      "hierarchy_id": "geography",
+      "name": "Geography",
+      "style": "self_referencing",
+      "levels": [
+        "ZONE",
+        "STATE",
+        "CITY"
+      ],
+      "entity": "region",
+      "parent_attribute": "parent_region_id",
+      "level_attribute": "region_level",
+      "attached_entities": [
+        {
+          "entity": "customer",
+          "attribute": "region_id",
+          "must_attach_at": "CITY"
+        }
+      ],
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    },
+    {
+      "hierarchy_id": "product_hierarchy",
+      "name": "Product hierarchy",
+      "style": "self_referencing",
+      "levels": [
+        "DEPARTMENT",
+        "CATEGORY",
+        "SUBCATEGORY"
+      ],
+      "entity": "category",
+      "parent_attribute": "parent_category_id",
+      "level_attribute": "category_level",
+      "attached_entities": [
+        {
+          "entity": "product",
+          "attribute": "category_id",
+          "must_attach_at": "SUBCATEGORY"
+        }
+      ],
+      "provenance": {
+        "source": "steward",
+        "confidence": 1.0,
+        "locked": true
+      }
+    }
+  ]
+}

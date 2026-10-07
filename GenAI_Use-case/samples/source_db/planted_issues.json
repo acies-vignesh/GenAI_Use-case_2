@@ -1,0 +1,1250 @@
+{
+  "database": "demo_retail",
+  "seed": 42,
+  "data_window": [
+    "2024-01-01",
+    "2025-12-31"
+  ],
+  "row_counts": {
+    "regions": 44,
+    "categories": 33,
+    "products": 270,
+    "customers": 2512,
+    "orders": 24010,
+    "order_items": 48958
+  },
+  "notes": "Item-level corruptions (quantity, line_amount, unit_price) also surface as order-total mismatches on their parent orders.",
+  "issues": [
+    {
+      "issue_id": "PI-001",
+      "table": "regions",
+      "columns": [
+        "region_level",
+        "parent_region_id"
+      ],
+      "dimension": "hierarchy",
+      "description": "CITY attached directly to a ZONE, skipping the STATE level",
+      "expected_rule": "A CITY's parent must be a STATE",
+      "count": 1,
+      "affected_keys": [
+        41
+      ]
+    },
+    {
+      "issue_id": "PI-002",
+      "table": "regions",
+      "columns": [
+        "parent_region_id"
+      ],
+      "dimension": "referential_integrity",
+      "description": "parent_region_id points to a region that does not exist",
+      "expected_rule": "parent_region_id must exist in regions.region_id",
+      "count": 1,
+      "affected_keys": [
+        42
+      ]
+    },
+    {
+      "issue_id": "PI-003",
+      "table": "regions",
+      "columns": [
+        "region_code"
+      ],
+      "dimension": "validity",
+      "description": "CITY code breaks the 3-uppercase-letter pattern",
+      "expected_rule": "CITY region_code matches ^[A-Z]{3}$",
+      "count": 1,
+      "affected_keys": [
+        43
+      ]
+    },
+    {
+      "issue_id": "PI-004",
+      "table": "regions",
+      "columns": [
+        "region_code"
+      ],
+      "dimension": "uniqueness",
+      "description": "Duplicate region_code (PNQ already used by Pune)",
+      "expected_rule": "region_code must be unique",
+      "count": 1,
+      "affected_keys": [
+        44
+      ]
+    },
+    {
+      "issue_id": "PI-005",
+      "table": "categories",
+      "columns": [
+        "category_level",
+        "parent_category_id"
+      ],
+      "dimension": "hierarchy",
+      "description": "SUBCATEGORY attached directly to a DEPARTMENT, skipping the CATEGORY level",
+      "expected_rule": "A SUBCATEGORY's parent must be a CATEGORY",
+      "count": 1,
+      "affected_keys": [
+        32
+      ]
+    },
+    {
+      "issue_id": "PI-006",
+      "table": "categories",
+      "columns": [
+        "parent_category_id"
+      ],
+      "dimension": "hierarchy",
+      "description": "Category is its own parent (cycle)",
+      "expected_rule": "parent_category_id must differ from category_id and the hierarchy must be acyclic",
+      "count": 1,
+      "affected_keys": [
+        33
+      ]
+    },
+    {
+      "issue_id": "PI-007",
+      "table": "products",
+      "columns": [
+        "category_id"
+      ],
+      "dimension": "completeness",
+      "description": "Product without a category",
+      "expected_rule": "category_id is mandatory",
+      "count": 3,
+      "affected_keys": [
+        113,
+        141,
+        153
+      ]
+    },
+    {
+      "issue_id": "PI-008",
+      "table": "products",
+      "columns": [
+        "category_id"
+      ],
+      "dimension": "referential_integrity",
+      "description": "category_id does not exist in categories",
+      "expected_rule": "products.category_id must exist in categories.category_id",
+      "count": 3,
+      "affected_keys": [
+        140,
+        231,
+        248
+      ]
+    },
+    {
+      "issue_id": "PI-009",
+      "table": "products",
+      "columns": [
+        "category_id"
+      ],
+      "dimension": "hierarchy",
+      "description": "Product mapped to a non-leaf (CATEGORY-level) node",
+      "expected_rule": "Products must be mapped to SUBCATEGORY-level categories",
+      "count": 4,
+      "affected_keys": [
+        91,
+        119,
+        239,
+        254
+      ]
+    },
+    {
+      "issue_id": "PI-010",
+      "table": "products",
+      "columns": [
+        "cost_price",
+        "unit_price"
+      ],
+      "dimension": "business_rule",
+      "description": "cost_price higher than selling price",
+      "expected_rule": "cost_price <= unit_price",
+      "count": 6,
+      "affected_keys": [
+        37,
+        42,
+        158,
+        185,
+        235,
+        241
+      ]
+    },
+    {
+      "issue_id": "PI-011",
+      "table": "products",
+      "columns": [
+        "unit_price"
+      ],
+      "dimension": "validity",
+      "description": "Zero or negative selling price",
+      "expected_rule": "unit_price > 0",
+      "count": 3,
+      "affected_keys": [
+        143,
+        193,
+        266
+      ]
+    },
+    {
+      "issue_id": "PI-012",
+      "table": "products",
+      "columns": [
+        "status"
+      ],
+      "dimension": "validity",
+      "description": "status outside the allowed set",
+      "expected_rule": "status IN ('ACTIVE','DISCONTINUED')",
+      "count": 4,
+      "affected_keys": [
+        63,
+        208,
+        215,
+        265
+      ]
+    },
+    {
+      "issue_id": "PI-013",
+      "table": "customers",
+      "columns": [
+        "email"
+      ],
+      "dimension": "completeness",
+      "description": "Missing email (~3%)",
+      "expected_rule": "email null rate below an agreed threshold (e.g. 1%)",
+      "count": 75,
+      "affected_keys": [
+        37,
+        115,
+        152,
+        186,
+        188,
+        243,
+        332,
+        354,
+        372,
+        407,
+        432,
+        489,
+        565,
+        574,
+        613,
+        643,
+        686,
+        695,
+        703,
+        738,
+        763,
+        788,
+        798,
+        806,
+        814,
+        900,
+        936,
+        938,
+        943,
+        961,
+        1070,
+        1113,
+        1145,
+        1179,
+        1203,
+        1219,
+        1246,
+        1277,
+        1409,
+        1433,
+        1464,
+        1482,
+        1492,
+        1506,
+        1553,
+        1576,
+        1606,
+        1668,
+        1742,
+        1751,
+        1757,
+        1789,
+        1839,
+        1849,
+        1859,
+        1896,
+        1945,
+        1973,
+        1999,
+        2010,
+        2021,
+        2049,
+        2056,
+        2105,
+        2109,
+        2122,
+        2154,
+        2187,
+        2192,
+        2238,
+        2258,
+        2348,
+        2358,
+        2480,
+        2493
+      ]
+    },
+    {
+      "issue_id": "PI-014",
+      "table": "customers",
+      "columns": [
+        "email"
+      ],
+      "dimension": "validity",
+      "description": "Malformed email address",
+      "expected_rule": "email matches a valid email pattern",
+      "count": 25,
+      "affected_keys": [
+        22,
+        57,
+        153,
+        306,
+        413,
+        659,
+        795,
+        843,
+        1026,
+        1064,
+        1156,
+        1165,
+        1227,
+        1240,
+        1335,
+        1448,
+        1473,
+        1769,
+        1929,
+        1968,
+        2117,
+        2121,
+        2213,
+        2223,
+        2476
+      ]
+    },
+    {
+      "issue_id": "PI-015",
+      "table": "customers",
+      "columns": [
+        "phone"
+      ],
+      "dimension": "completeness",
+      "description": "Missing phone (~2%)",
+      "expected_rule": "phone null rate below threshold",
+      "count": 50,
+      "affected_keys": [
+        6,
+        11,
+        59,
+        297,
+        323,
+        351,
+        357,
+        447,
+        482,
+        528,
+        575,
+        576,
+        645,
+        690,
+        765,
+        866,
+        881,
+        933,
+        957,
+        958,
+        1073,
+        1101,
+        1104,
+        1144,
+        1148,
+        1202,
+        1462,
+        1528,
+        1531,
+        1575,
+        1622,
+        1630,
+        1706,
+        1711,
+        1752,
+        1834,
+        1845,
+        1927,
+        1963,
+        1991,
+        2006,
+        2071,
+        2080,
+        2133,
+        2205,
+        2262,
+        2364,
+        2385,
+        2436,
+        2470
+      ]
+    },
+    {
+      "issue_id": "PI-016",
+      "table": "customers",
+      "columns": [
+        "phone"
+      ],
+      "dimension": "validity",
+      "description": "Phone not in +91XXXXXXXXXX format (8 digits, no country code)",
+      "expected_rule": "phone matches ^\\+91[6-9][0-9]{9}$",
+      "count": 25,
+      "affected_keys": [
+        67,
+        150,
+        189,
+        212,
+        242,
+        276,
+        426,
+        460,
+        598,
+        846,
+        895,
+        956,
+        1181,
+        1261,
+        1295,
+        1321,
+        1374,
+        1486,
+        1741,
+        1893,
+        1902,
+        2018,
+        2255,
+        2257,
+        2442
+      ]
+    },
+    {
+      "issue_id": "PI-017",
+      "table": "customers",
+      "columns": [
+        "gender"
+      ],
+      "dimension": "validity",
+      "description": "Gender code outside the allowed set",
+      "expected_rule": "gender IN ('M','F','O')",
+      "count": 25,
+      "affected_keys": [
+        5,
+        54,
+        101,
+        196,
+        467,
+        632,
+        776,
+        816,
+        924,
+        971,
+        1000,
+        1065,
+        1206,
+        1268,
+        1469,
+        1567,
+        1574,
+        1600,
+        1774,
+        1779,
+        1948,
+        1954,
+        2194,
+        2307,
+        2440
+      ]
+    },
+    {
+      "issue_id": "PI-018",
+      "table": "customers",
+      "columns": [
+        "date_of_birth"
+      ],
+      "dimension": "business_rule",
+      "description": "Customer younger than 18",
+      "expected_rule": "Customer age at signup >= 18",
+      "count": 8,
+      "affected_keys": [
+        250,
+        1088,
+        1457,
+        1569,
+        1580,
+        1771,
+        1799,
+        2157
+      ]
+    },
+    {
+      "issue_id": "PI-019",
+      "table": "customers",
+      "columns": [
+        "date_of_birth"
+      ],
+      "dimension": "accuracy",
+      "description": "Placeholder date of birth 1900-01-01",
+      "expected_rule": "date_of_birth not a known default/placeholder; age <= 110",
+      "count": 6,
+      "affected_keys": [
+        53,
+        654,
+        1003,
+        1864,
+        2138,
+        2304
+      ]
+    },
+    {
+      "issue_id": "PI-020",
+      "table": "customers",
+      "columns": [
+        "region_id"
+      ],
+      "dimension": "referential_integrity",
+      "description": "region_id does not exist in regions",
+      "expected_rule": "customers.region_id must exist in regions.region_id",
+      "count": 10,
+      "affected_keys": [
+        4,
+        46,
+        81,
+        1323,
+        1429,
+        1466,
+        1490,
+        1775,
+        2274,
+        2433
+      ]
+    },
+    {
+      "issue_id": "PI-021",
+      "table": "customers",
+      "columns": [
+        "region_id"
+      ],
+      "dimension": "hierarchy",
+      "description": "Customer mapped to a STATE instead of a CITY",
+      "expected_rule": "customers.region_id must reference a CITY-level region",
+      "count": 10,
+      "affected_keys": [
+        563,
+        780,
+        1157,
+        1824,
+        2034,
+        2175,
+        2272,
+        2345,
+        2398,
+        2478
+      ]
+    },
+    {
+      "issue_id": "PI-022",
+      "table": "customers",
+      "columns": [
+        "email",
+        "first_name",
+        "last_name"
+      ],
+      "dimension": "uniqueness",
+      "description": "Duplicate customer (same name, email, phone) registered under a new customer_id",
+      "expected_rule": "email must be unique across customers",
+      "count": 12,
+      "affected_keys": [
+        2501,
+        2502,
+        2503,
+        2504,
+        2505,
+        2506,
+        2507,
+        2508,
+        2509,
+        2510,
+        2511,
+        2512
+      ]
+    },
+    {
+      "issue_id": "PI-023",
+      "table": "orders",
+      "columns": [
+        "customer_id"
+      ],
+      "dimension": "referential_integrity",
+      "description": "Order placed by a customer that does not exist",
+      "expected_rule": "orders.customer_id must exist in customers.customer_id",
+      "count": 20,
+      "affected_keys": [
+        864,
+        2792,
+        3452,
+        5099,
+        5689,
+        6095,
+        6539,
+        7131,
+        7818,
+        8703,
+        9759,
+        14824,
+        14981,
+        16419,
+        18630,
+        18817,
+        19120,
+        19719,
+        20077,
+        22028
+      ]
+    },
+    {
+      "issue_id": "PI-024",
+      "table": "orders",
+      "columns": [
+        "status"
+      ],
+      "dimension": "validity",
+      "description": "Order status outside the allowed set",
+      "expected_rule": "status IN ('PLACED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED')",
+      "count": 40,
+      "affected_keys": [
+        1769,
+        2107,
+        5382,
+        5654,
+        6777,
+        7296,
+        7939,
+        7968,
+        8191,
+        8786,
+        9065,
+        9493,
+        9928,
+        10084,
+        10219,
+        10939,
+        11226,
+        11615,
+        12312,
+        12920,
+        13099,
+        13281,
+        13722,
+        14587,
+        14720,
+        15474,
+        16769,
+        17381,
+        18417,
+        18905,
+        18953,
+        19150,
+        19323,
+        19494,
+        20494,
+        20944,
+        21107,
+        22433,
+        22981,
+        23870
+      ]
+    },
+    {
+      "issue_id": "PI-025",
+      "table": "orders",
+      "columns": [
+        "status",
+        "delivery_date"
+      ],
+      "dimension": "consistency",
+      "description": "DELIVERED order without a delivery_date",
+      "expected_rule": "status = 'DELIVERED' implies delivery_date IS NOT NULL",
+      "count": 25,
+      "affected_keys": [
+        61,
+        1767,
+        2416,
+        3331,
+        3742,
+        4168,
+        4564,
+        5094,
+        5492,
+        6665,
+        7879,
+        7906,
+        8409,
+        8513,
+        8623,
+        9172,
+        9260,
+        11883,
+        12582,
+        16492,
+        17453,
+        20781,
+        21397,
+        21815,
+        22775
+      ]
+    },
+    {
+      "issue_id": "PI-026",
+      "table": "orders",
+      "columns": [
+        "order_date",
+        "ship_date"
+      ],
+      "dimension": "consistency",
+      "description": "Shipped before it was ordered",
+      "expected_rule": "ship_date >= order_date",
+      "count": 30,
+      "affected_keys": [
+        583,
+        711,
+        1049,
+        1130,
+        3339,
+        3349,
+        4009,
+        4526,
+        4742,
+        5112,
+        5571,
+        6349,
+        6707,
+        7824,
+        9001,
+        10168,
+        10287,
+        11033,
+        11148,
+        11606,
+        11965,
+        12666,
+        14185,
+        15159,
+        16478,
+        19082,
+        21597,
+        22878,
+        23629,
+        23655
+      ]
+    },
+    {
+      "issue_id": "PI-027",
+      "table": "orders",
+      "columns": [
+        "ship_date",
+        "delivery_date"
+      ],
+      "dimension": "consistency",
+      "description": "Delivered before it was shipped",
+      "expected_rule": "delivery_date >= ship_date",
+      "count": 15,
+      "affected_keys": [
+        184,
+        979,
+        2793,
+        4321,
+        5528,
+        10959,
+        11366,
+        12911,
+        13502,
+        15050,
+        18889,
+        19487,
+        22486,
+        22711,
+        22954
+      ]
+    },
+    {
+      "issue_id": "PI-028",
+      "table": "orders",
+      "columns": [
+        "order_date"
+      ],
+      "dimension": "timeliness",
+      "description": "Order date in the future",
+      "expected_rule": "order_date <= current date",
+      "count": 5,
+      "affected_keys": [
+        4657,
+        7023,
+        14074,
+        15076,
+        17414
+      ]
+    },
+    {
+      "issue_id": "PI-029",
+      "table": "orders",
+      "columns": [
+        "currency"
+      ],
+      "dimension": "validity",
+      "description": "Invalid or missing currency code",
+      "expected_rule": "currency is a valid ISO-4217 code (here always 'INR')",
+      "count": 15,
+      "affected_keys": [
+        48,
+        206,
+        2810,
+        4692,
+        5277,
+        6123,
+        10360,
+        14177,
+        14418,
+        16125,
+        16776,
+        18092,
+        18099,
+        19981,
+        23310
+      ]
+    },
+    {
+      "issue_id": "PI-030",
+      "table": "orders",
+      "columns": [
+        "channel"
+      ],
+      "dimension": "validity",
+      "description": "Channel code not standardised (lowercase / alias)",
+      "expected_rule": "channel IN ('ONLINE','MOBILE_APP','STORE')",
+      "count": 20,
+      "affected_keys": [
+        100,
+        1140,
+        1999,
+        2493,
+        3604,
+        4218,
+        6577,
+        6610,
+        6811,
+        7192,
+        9562,
+        10761,
+        10944,
+        13290,
+        15948,
+        18222,
+        18374,
+        18749,
+        19225,
+        23703
+      ]
+    },
+    {
+      "issue_id": "PI-031",
+      "table": "orders",
+      "columns": [
+        "channel",
+        "payment_method"
+      ],
+      "dimension": "business_rule",
+      "description": "Cash-on-delivery used for an in-store order",
+      "expected_rule": "payment_method = 'COD' only when channel <> 'STORE'",
+      "count": 10,
+      "affected_keys": [
+        19,
+        3545,
+        4369,
+        11334,
+        11642,
+        11736,
+        14255,
+        17031,
+        18307,
+        21026
+      ]
+    },
+    {
+      "issue_id": "PI-032",
+      "table": "orders",
+      "columns": [
+        "order_number"
+      ],
+      "dimension": "uniqueness",
+      "description": "order_number reused by another order",
+      "expected_rule": "order_number must be unique",
+      "count": 10,
+      "affected_keys": [
+        1188,
+        4936,
+        5218,
+        8882,
+        9211,
+        10328,
+        12473,
+        18761,
+        19577,
+        20161
+      ]
+    },
+    {
+      "issue_id": "PI-033",
+      "table": "orders",
+      "columns": [
+        "total_amount",
+        "discount_amount"
+      ],
+      "dimension": "consistency",
+      "description": "total_amount does not equal sum(order_items.line_amount) - discount_amount",
+      "expected_rule": "total_amount = SUM(line_amount) - discount_amount",
+      "count": 40,
+      "affected_keys": [
+        564,
+        736,
+        878,
+        1799,
+        2695,
+        4257,
+        4472,
+        4508,
+        5369,
+        6133,
+        6156,
+        6364,
+        8260,
+        9234,
+        9756,
+        10992,
+        11623,
+        12340,
+        12710,
+        12718,
+        13252,
+        14908,
+        15902,
+        16880,
+        19056,
+        19216,
+        19367,
+        19431,
+        19442,
+        19804,
+        20454,
+        21318,
+        21467,
+        21775,
+        22071,
+        22169,
+        22175,
+        22337,
+        23690,
+        23926
+      ]
+    },
+    {
+      "issue_id": "PI-034",
+      "table": "orders",
+      "columns": [
+        "discount_amount"
+      ],
+      "dimension": "validity",
+      "description": "Negative discount amount",
+      "expected_rule": "discount_amount >= 0",
+      "count": 5,
+      "affected_keys": [
+        87,
+        4297,
+        6809,
+        19187,
+        23375
+      ]
+    },
+    {
+      "issue_id": "PI-035",
+      "table": "orders",
+      "columns": [
+        "discount_amount",
+        "total_amount"
+      ],
+      "dimension": "business_rule",
+      "description": "Discount larger than the order subtotal (negative total)",
+      "expected_rule": "discount_amount <= subtotal and total_amount >= 0",
+      "count": 5,
+      "affected_keys": [
+        5581,
+        9344,
+        22232,
+        23641,
+        23678
+      ]
+    },
+    {
+      "issue_id": "PI-036",
+      "table": "orders",
+      "columns": [
+        "order_id"
+      ],
+      "dimension": "referential_integrity",
+      "description": "Order header without any order_items",
+      "expected_rule": "Every order has at least one order_item",
+      "count": 10,
+      "affected_keys": [
+        24001,
+        24002,
+        24003,
+        24004,
+        24005,
+        24006,
+        24007,
+        24008,
+        24009,
+        24010
+      ]
+    },
+    {
+      "issue_id": "PI-037",
+      "table": "order_items",
+      "columns": [
+        "order_id"
+      ],
+      "dimension": "referential_integrity",
+      "description": "Order line whose order does not exist",
+      "expected_rule": "order_items.order_id must exist in orders.order_id",
+      "count": 15,
+      "affected_keys": [
+        48944,
+        48945,
+        48946,
+        48947,
+        48948,
+        48949,
+        48950,
+        48951,
+        48952,
+        48953,
+        48954,
+        48955,
+        48956,
+        48957,
+        48958
+      ]
+    },
+    {
+      "issue_id": "PI-038",
+      "table": "order_items",
+      "columns": [
+        "product_id"
+      ],
+      "dimension": "referential_integrity",
+      "description": "Order line for a product that does not exist",
+      "expected_rule": "order_items.product_id must exist in products.product_id",
+      "count": 15,
+      "affected_keys": [
+        6777,
+        9730,
+        13820,
+        15279,
+        17667,
+        22142,
+        27762,
+        29856,
+        35111,
+        37159,
+        38374,
+        42698,
+        43176,
+        44022,
+        48523
+      ]
+    },
+    {
+      "issue_id": "PI-039",
+      "table": "order_items",
+      "columns": [
+        "quantity"
+      ],
+      "dimension": "validity",
+      "description": "Zero or negative quantity",
+      "expected_rule": "quantity > 0",
+      "count": 20,
+      "affected_keys": [
+        65,
+        731,
+        3660,
+        7063,
+        9557,
+        12587,
+        16015,
+        18390,
+        20750,
+        21996,
+        25698,
+        26219,
+        28138,
+        29306,
+        33345,
+        35864,
+        41222,
+        41972,
+        42955,
+        47951
+      ]
+    },
+    {
+      "issue_id": "PI-040",
+      "table": "order_items",
+      "columns": [
+        "quantity"
+      ],
+      "dimension": "accuracy",
+      "description": "Extreme quantity outlier (5000 units)",
+      "expected_rule": "quantity within an expected range (e.g. <= 100) or flagged as outlier",
+      "count": 5,
+      "affected_keys": [
+        15634,
+        25214,
+        27176,
+        40452,
+        45577
+      ]
+    },
+    {
+      "issue_id": "PI-041",
+      "table": "order_items",
+      "columns": [
+        "discount_pct"
+      ],
+      "dimension": "validity",
+      "description": "Discount percentage outside 0-100",
+      "expected_rule": "discount_pct BETWEEN 0 AND 100",
+      "count": 10,
+      "affected_keys": [
+        61,
+        1095,
+        2097,
+        2262,
+        18461,
+        20270,
+        26422,
+        27594,
+        36065,
+        43526
+      ]
+    },
+    {
+      "issue_id": "PI-042",
+      "table": "order_items",
+      "columns": [
+        "line_amount",
+        "quantity",
+        "unit_price",
+        "discount_pct"
+      ],
+      "dimension": "consistency",
+      "description": "line_amount does not equal quantity * unit_price * (1 - discount_pct/100)",
+      "expected_rule": "line_amount = ROUND(quantity * unit_price * (1 - discount_pct/100), 2)",
+      "count": 30,
+      "affected_keys": [
+        4806,
+        5047,
+        6639,
+        6704,
+        7075,
+        7230,
+        7370,
+        8380,
+        9631,
+        13770,
+        14061,
+        14324,
+        14418,
+        19232,
+        23777,
+        23911,
+        28283,
+        28616,
+        29012,
+        34185,
+        34663,
+        36493,
+        36538,
+        40384,
+        40899,
+        41041,
+        42671,
+        43988,
+        46015,
+        46697
+      ]
+    },
+    {
+      "issue_id": "PI-043",
+      "table": "order_items",
+      "columns": [
+        "unit_price"
+      ],
+      "dimension": "completeness",
+      "description": "Missing unit_price on an order line",
+      "expected_rule": "unit_price is mandatory",
+      "count": 10,
+      "affected_keys": [
+        1288,
+        3308,
+        8567,
+        8896,
+        9108,
+        13345,
+        18812,
+        24281,
+        26427,
+        39631
+      ]
+    },
+    {
+      "issue_id": "PI-044",
+      "table": "customers",
+      "columns": [
+        "signup_date"
+      ],
+      "dimension": "consistency",
+      "description": "Customer signed up after their first order",
+      "expected_rule": "signup_date <= MIN(orders.order_date) for the customer",
+      "count": 15,
+      "affected_keys": [
+        62,
+        107,
+        270,
+        423,
+        496,
+        1387,
+        1513,
+        1515,
+        1615,
+        1705,
+        1882,
+        2046,
+        2130,
+        2303,
+        2369
+      ]
+    }
+  ]
+}

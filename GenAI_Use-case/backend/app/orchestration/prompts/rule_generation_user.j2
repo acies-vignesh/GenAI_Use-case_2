@@ -1,0 +1,31 @@
+Database domain: {{ domain }}
+
+{{ ctx.entity_block }}
+
+RELATED ENTITIES (for cross-table rules; their columns may only appear in child_expression or join columns):
+{{ ctx.related_block }}
+
+HIERARCHIES involving {{ ctx.entity_id }}:
+{{ ctx.hierarchy_block }}
+
+BUSINESS CONTEXT from the data steward:
+{% for line in ctx.business_context %}{{ line }}
+{% else %}(none)
+{% endfor %}
+ALREADY COVERED (baseline, approved, or proposed and awaiting review) - do not repeat or vary these:
+{% for line in ctx.covered %}- {{ line }}
+{% else %}(none)
+{% endfor %}
+REJECTED by the steward - do not propose these or variants of them:
+{% for line in ctx.rejected %}- {{ line }}
+{% else %}(none)
+{% endfor %}
+STEWARD PREFERENCES (they edited a suggestion before approving it - learn from it):
+{% for line in ctx.preferences %}- {{ line }}
+{% else %}(none)
+{% endfor %}
+STEWARD PATTERNS (how the steward judges KINDS of rules - follow these tendencies):
+{% for line in ctx.patterns %}- {{ line }}
+{% else %}(no decisions yet)
+{% endfor %}
+TASK: propose up to {{ max_rules }} NEW rules whose target.entity is "{{ ctx.entity_id }}".
