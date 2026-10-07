@@ -1,0 +1,1171 @@
+{
+  "source_id": "demo_retail",
+  "description": "Steward-written reference rules for the demo DB. 'covers' maps each rule to the planted issue(s) it catches. Answer key for scoring generated rules - never shown to the engine.",
+  "rules": [
+    {
+      "covers": [
+        "PI-001"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Region parent must be one level up",
+        "category": "hierarchy",
+        "dimension": "consistency",
+        "scope": "table",
+        "target": {
+          "entity": "region",
+          "columns": []
+        },
+        "check": {
+          "type": "hierarchy_parent_level",
+          "hierarchy": "geography"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-002"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Region parent must exist",
+        "category": "data_quality",
+        "dimension": "referential_integrity",
+        "scope": "cross_table",
+        "target": {
+          "entity": "region",
+          "columns": [
+            "parent_region_id"
+          ]
+        },
+        "check": {
+          "type": "foreign_key",
+          "ref_entity": "region",
+          "ref_columns": [
+            "region_id"
+          ]
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-003"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "City codes are 3 uppercase letters",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "region",
+          "columns": [
+            "region_code"
+          ]
+        },
+        "check": {
+          "type": "pattern",
+          "regex": "^[A-Z]{3}$"
+        },
+        "severity": "medium",
+        "origin": "steward",
+        "status": "approved",
+        "filter": "region_level = 'CITY'"
+      }
+    },
+    {
+      "covers": [
+        "PI-004"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Region code is unique",
+        "category": "data_quality",
+        "dimension": "uniqueness",
+        "scope": "column",
+        "target": {
+          "entity": "region",
+          "columns": [
+            "region_code"
+          ]
+        },
+        "check": {
+          "type": "unique"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-005"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Category parent must be one level up",
+        "category": "hierarchy",
+        "dimension": "consistency",
+        "scope": "table",
+        "target": {
+          "entity": "category",
+          "columns": []
+        },
+        "check": {
+          "type": "hierarchy_parent_level",
+          "hierarchy": "product_hierarchy"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-006"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Product hierarchy has no cycles",
+        "category": "hierarchy",
+        "dimension": "consistency",
+        "scope": "table",
+        "target": {
+          "entity": "category",
+          "columns": []
+        },
+        "check": {
+          "type": "hierarchy_acyclic",
+          "hierarchy": "product_hierarchy"
+        },
+        "severity": "critical",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-007"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Product must have a category",
+        "category": "data_quality",
+        "dimension": "completeness",
+        "scope": "column",
+        "target": {
+          "entity": "product",
+          "columns": [
+            "category_id"
+          ]
+        },
+        "check": {
+          "type": "not_null"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-008"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Product category must exist",
+        "category": "data_quality",
+        "dimension": "referential_integrity",
+        "scope": "cross_table",
+        "target": {
+          "entity": "product",
+          "columns": [
+            "category_id"
+          ]
+        },
+        "check": {
+          "type": "foreign_key",
+          "ref_entity": "category",
+          "ref_columns": [
+            "category_id"
+          ]
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-009"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Products sit on a subcategory",
+        "category": "hierarchy",
+        "dimension": "consistency",
+        "scope": "cross_table",
+        "target": {
+          "entity": "product",
+          "columns": [
+            "category_id"
+          ]
+        },
+        "check": {
+          "type": "hierarchy_attach_level",
+          "hierarchy": "product_hierarchy",
+          "level": "SUBCATEGORY"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-010"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Cost does not exceed selling price",
+        "category": "business",
+        "dimension": "consistency",
+        "scope": "row",
+        "target": {
+          "entity": "product",
+          "columns": [
+            "cost_price",
+            "unit_price"
+          ]
+        },
+        "check": {
+          "type": "row_condition",
+          "expression": "cost_price <= unit_price"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-011"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Selling price is positive",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "product",
+          "columns": [
+            "unit_price"
+          ]
+        },
+        "check": {
+          "type": "range",
+          "min": 0,
+          "inclusive": false
+        },
+        "severity": "critical",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-012"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Product status is a valid code",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "product",
+          "columns": [
+            "status"
+          ]
+        },
+        "check": {
+          "type": "allowed_values",
+          "values": [
+            "ACTIVE",
+            "DISCONTINUED"
+          ]
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-013"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Email is mostly populated",
+        "category": "data_quality",
+        "dimension": "completeness",
+        "scope": "column",
+        "target": {
+          "entity": "customer",
+          "columns": [
+            "email"
+          ]
+        },
+        "check": {
+          "type": "null_rate_max",
+          "max_rate": 0.01
+        },
+        "severity": "medium",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-014"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Email is well-formed",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "customer",
+          "columns": [
+            "email"
+          ]
+        },
+        "check": {
+          "type": "pattern",
+          "regex": "^[^@\\s]+@[^@\\s]+\\.[A-Za-z]{2,}$"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-015"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Phone is mostly populated",
+        "category": "data_quality",
+        "dimension": "completeness",
+        "scope": "column",
+        "target": {
+          "entity": "customer",
+          "columns": [
+            "phone"
+          ]
+        },
+        "check": {
+          "type": "null_rate_max",
+          "max_rate": 0.01
+        },
+        "severity": "medium",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-016"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Phone is an Indian mobile in +91 format",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "customer",
+          "columns": [
+            "phone"
+          ]
+        },
+        "check": {
+          "type": "pattern",
+          "regex": "^\\+91[6-9]\\d{9}$"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-017"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Gender is a valid code",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "customer",
+          "columns": [
+            "gender"
+          ]
+        },
+        "check": {
+          "type": "allowed_values",
+          "values": [
+            "M",
+            "F",
+            "O"
+          ]
+        },
+        "severity": "medium",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-018"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Customer is 18+ at signup",
+        "category": "business",
+        "dimension": "validity",
+        "scope": "row",
+        "target": {
+          "entity": "customer",
+          "columns": [
+            "date_of_birth",
+            "signup_date"
+          ]
+        },
+        "check": {
+          "type": "row_condition",
+          "expression": "signup_date >= DATE_ADD(date_of_birth, 18, 'YEAR')"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-019"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Date of birth is not a placeholder",
+        "category": "data_quality",
+        "dimension": "accuracy",
+        "scope": "column",
+        "target": {
+          "entity": "customer",
+          "columns": [
+            "date_of_birth"
+          ]
+        },
+        "check": {
+          "type": "not_placeholder",
+          "values": [
+            "1900-01-01",
+            "1899-12-31",
+            "9999-12-31"
+          ]
+        },
+        "severity": "medium",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-020"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Customer region must exist",
+        "category": "data_quality",
+        "dimension": "referential_integrity",
+        "scope": "cross_table",
+        "target": {
+          "entity": "customer",
+          "columns": [
+            "region_id"
+          ]
+        },
+        "check": {
+          "type": "foreign_key",
+          "ref_entity": "region",
+          "ref_columns": [
+            "region_id"
+          ]
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-021"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Customers live in a city",
+        "category": "hierarchy",
+        "dimension": "consistency",
+        "scope": "cross_table",
+        "target": {
+          "entity": "customer",
+          "columns": [
+            "region_id"
+          ]
+        },
+        "check": {
+          "type": "hierarchy_attach_level",
+          "hierarchy": "geography",
+          "level": "CITY"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-022"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Email is unique per customer",
+        "category": "data_quality",
+        "dimension": "uniqueness",
+        "scope": "column",
+        "target": {
+          "entity": "customer",
+          "columns": [
+            "email"
+          ]
+        },
+        "check": {
+          "type": "unique"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-023"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Order customer must exist",
+        "category": "data_quality",
+        "dimension": "referential_integrity",
+        "scope": "cross_table",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "customer_id"
+          ]
+        },
+        "check": {
+          "type": "foreign_key",
+          "ref_entity": "customer",
+          "ref_columns": [
+            "customer_id"
+          ]
+        },
+        "severity": "critical",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-024"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Order status is a valid code",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "status"
+          ]
+        },
+        "check": {
+          "type": "allowed_values",
+          "values": [
+            "PLACED",
+            "SHIPPED",
+            "DELIVERED",
+            "CANCELLED",
+            "RETURNED"
+          ]
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-025"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Delivered orders have a delivery date",
+        "category": "business",
+        "dimension": "consistency",
+        "scope": "row",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "status",
+            "delivery_date"
+          ]
+        },
+        "check": {
+          "type": "conditional",
+          "when": "status = 'DELIVERED'",
+          "then": "delivery_date IS NOT NULL"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-026"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Ship date on/after order date",
+        "category": "business",
+        "dimension": "consistency",
+        "scope": "row",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "order_date",
+            "ship_date"
+          ]
+        },
+        "check": {
+          "type": "row_condition",
+          "expression": "ship_date >= order_date"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-027"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Delivery date on/after ship date",
+        "category": "business",
+        "dimension": "consistency",
+        "scope": "row",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "ship_date",
+            "delivery_date"
+          ]
+        },
+        "check": {
+          "type": "row_condition",
+          "expression": "delivery_date >= ship_date"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-028"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Order date is not in the future",
+        "category": "data_quality",
+        "dimension": "timeliness",
+        "scope": "column",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "order_date"
+          ]
+        },
+        "check": {
+          "type": "date_not_future"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-029"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Currency is INR",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "currency"
+          ]
+        },
+        "check": {
+          "type": "allowed_values",
+          "values": [
+            "INR"
+          ]
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-029"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Currency is populated",
+        "category": "data_quality",
+        "dimension": "completeness",
+        "scope": "column",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "currency"
+          ]
+        },
+        "check": {
+          "type": "not_null"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-030"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Channel is a valid code",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "channel"
+          ]
+        },
+        "check": {
+          "type": "allowed_values",
+          "values": [
+            "ONLINE",
+            "MOBILE_APP",
+            "STORE"
+          ]
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-031"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "No cash-on-delivery for in-store orders",
+        "category": "business",
+        "dimension": "consistency",
+        "scope": "row",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "channel",
+            "payment_method"
+          ]
+        },
+        "check": {
+          "type": "conditional",
+          "when": "channel = 'STORE'",
+          "then": "payment_method <> 'COD'"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-032"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Order number is unique",
+        "category": "data_quality",
+        "dimension": "uniqueness",
+        "scope": "column",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "order_number"
+          ]
+        },
+        "check": {
+          "type": "unique"
+        },
+        "severity": "critical",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-033"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Order total equals lines minus discount",
+        "category": "business",
+        "dimension": "consistency",
+        "scope": "cross_table",
+        "target": {
+          "entity": "order",
+          "columns": []
+        },
+        "check": {
+          "type": "aggregate_compare",
+          "child_entity": "order_item",
+          "child_join_columns": [
+            "order_id"
+          ],
+          "parent_join_columns": [
+            "order_id"
+          ],
+          "child_expression": "SUM(line_amount)",
+          "operator": "=",
+          "parent_expression": "total_amount + discount_amount",
+          "tolerance_abs": 0.015
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-034"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Order discount is not negative",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "discount_amount"
+          ]
+        },
+        "check": {
+          "type": "range",
+          "min": 0
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-035"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Order total is not negative",
+        "category": "business",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "order",
+          "columns": [
+            "total_amount"
+          ]
+        },
+        "check": {
+          "type": "range",
+          "min": 0
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-036"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Every order has at least one line",
+        "category": "business",
+        "dimension": "referential_integrity",
+        "scope": "cross_table",
+        "target": {
+          "entity": "order",
+          "columns": []
+        },
+        "check": {
+          "type": "has_children",
+          "child_entity": "order_item",
+          "child_join_columns": [
+            "order_id"
+          ],
+          "parent_join_columns": [
+            "order_id"
+          ]
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-037"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Order line's order must exist",
+        "category": "data_quality",
+        "dimension": "referential_integrity",
+        "scope": "cross_table",
+        "target": {
+          "entity": "order_item",
+          "columns": [
+            "order_id"
+          ]
+        },
+        "check": {
+          "type": "foreign_key",
+          "ref_entity": "order",
+          "ref_columns": [
+            "order_id"
+          ]
+        },
+        "severity": "critical",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-038"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Order line's product must exist",
+        "category": "data_quality",
+        "dimension": "referential_integrity",
+        "scope": "cross_table",
+        "target": {
+          "entity": "order_item",
+          "columns": [
+            "product_id"
+          ]
+        },
+        "check": {
+          "type": "foreign_key",
+          "ref_entity": "product",
+          "ref_columns": [
+            "product_id"
+          ]
+        },
+        "severity": "critical",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-039",
+        "PI-040"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Quantity between 1 and 100",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "order_item",
+          "columns": [
+            "quantity"
+          ]
+        },
+        "check": {
+          "type": "range",
+          "min": 1,
+          "max": 100
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-041"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Line discount between 0 and 100%",
+        "category": "data_quality",
+        "dimension": "validity",
+        "scope": "column",
+        "target": {
+          "entity": "order_item",
+          "columns": [
+            "discount_pct"
+          ]
+        },
+        "check": {
+          "type": "range",
+          "min": 0,
+          "max": 100
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-042"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Line amount matches quantity x price - discount",
+        "category": "business",
+        "dimension": "consistency",
+        "scope": "row",
+        "target": {
+          "entity": "order_item",
+          "columns": [
+            "line_amount",
+            "quantity",
+            "unit_price",
+            "discount_pct"
+          ]
+        },
+        "check": {
+          "type": "row_condition",
+          "expression": "ABS(line_amount - ROUND(quantity * unit_price * (1 - discount_pct / 100.0), 2)) <= 0.015"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-043"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Line unit price is populated",
+        "category": "data_quality",
+        "dimension": "completeness",
+        "scope": "column",
+        "target": {
+          "entity": "order_item",
+          "columns": [
+            "unit_price"
+          ]
+        },
+        "check": {
+          "type": "not_null"
+        },
+        "severity": "high",
+        "origin": "steward",
+        "status": "approved"
+      }
+    },
+    {
+      "covers": [
+        "PI-044"
+      ],
+      "rule": {
+        "source_id": "demo_retail",
+        "name": "Signup not after first order",
+        "category": "business",
+        "dimension": "consistency",
+        "scope": "cross_table",
+        "target": {
+          "entity": "customer",
+          "columns": []
+        },
+        "check": {
+          "type": "aggregate_compare",
+          "child_entity": "order",
+          "child_join_columns": [
+            "customer_id"
+          ],
+          "parent_join_columns": [
+            "customer_id"
+          ],
+          "child_expression": "MIN(order_date)",
+          "operator": "<=",
+          "parent_expression": "signup_date"
+        },
+        "severity": "medium",
+        "origin": "steward",
+        "status": "approved"
+      }
+    }
+  ]
+}

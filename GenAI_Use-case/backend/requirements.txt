@@ -1,0 +1,22 @@
+# Web / API
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+# DB access (source + app DB)
+sqlalchemy
+alembic
+# Profiling
+pandas
+# Security
+cryptography
+# Prompting / LLM
+jinja2
+sqlglot   # parse, validate and transpile SQL expressions in rules
+openai   # OpenAI-compatible client: works with Groq, Ollama, vLLM, xAI
+# Export
+python-docx
+reportlab
+# Dev
+pytest
+httpx
